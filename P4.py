@@ -10,6 +10,8 @@
 # * Carné: **B82958**
 # * Grupo: **1**
 #
+import matplotlib.pyplot as plt
+import time
 from PIL import Image
 import numpy as np
 
@@ -28,7 +30,7 @@ def fuente_info(imagen):
 
     return np.array(img)
 
-import numpy as np
+
 
 def rgb_a_bit(imagen):
     '''Convierte los pixeles de base 
@@ -54,11 +56,11 @@ def rgb_a_bit(imagen):
     return bits_Rx.astype(int)
 
 
-import numpy as np
 
+#se toma funcion para modulacion QPSK
 def modulador(bits, fc, mpp):
     '''Un método que simula el esquema de 
-    modulación digital BPSK.
+    modulación digital QPSK.
 
     :param bits: Vector unidimensional de bits
     :param fc: Frecuencia de la portadora en Hz
@@ -74,7 +76,10 @@ def modulador(bits, fc, mpp):
     # 2. Construyendo un periodo de la señal portadora c(t)
     Tc = 1 / fc  # periodo [s]
     t_periodo = np.linspace(0, Tc, mpp)
-    portadora = np.sin(2*np.pi*fc*t_periodo)
+    portadora1 = np.sin(2*np.pi*fc*t_periodo)
+    portadora2 = np.cos(2*np.pi*fc*t_periodo)
+    
+    
 
     # 3. Inicializar la señal modulada s(t)
     t_simulacion = np.linspace(0, N*Tc, N*mpp) 
@@ -82,20 +87,37 @@ def modulador(bits, fc, mpp):
     moduladora = np.zeros(t_simulacion.shape)  # señal de información
  
     # 4. Asignar las formas de onda según los bits (BPSK)
+    contador=1 #declarado como 1 contador, antes de entrar al bucle
     for i, bit in enumerate(bits):
-        if bit == 1:
-            senal_Tx[i*mpp : (i+1)*mpp] = portadora
-            moduladora[i*mpp : (i+1)*mpp] = 1
-        else:
-            senal_Tx[i*mpp : (i+1)*mpp] = portadora * -1
+        '''si el bit, es 1 y el contador es impar, 
+        entonces poner la senal tx en alto lo mismo 
+        que moduladora, para ambas portadoras'''
+        if (bit != 0) and (contador%2 != 0):  
+            senal_Tx[i*mpp : (i+1)*mpp] = portadora1*1
+            moduladora[i*mpp : (i+1)*mpp] = 1 #poner moduladora en 1
+            contador += 1  #incrementar contador
+        elif (bit == 0) and (contador%2 != 0):
+            senal_Tx[i*mpp : (i+1)*mpp] = portadora1*-1
             moduladora[i*mpp : (i+1)*mpp] = 0
-    
+            contador += 1
+         
+        elif (bit != 0) and (contador%2 == 0):
+            senal_Tx[i*mpp : (i+1)*mpp] = portadora2*1
+            moduladora[i*mpp : (i+1)*mpp] = 1
+            contador += 1
+        #poner en bajo senal si bit es 0
+        elif (bit == 0) and (contador%2 == 0):
+            senal_Tx[i*mpp : (i+1)*mpp] = portadora2*-1
+            moduladora[i*mpp : (i+1)*mpp] = 0
+            contador += 1
     # 5. Calcular la potencia promedio de la señal modulada
     Pm = (1 / (N*Tc)) * np.trapz(pow(senal_Tx, 2), t_simulacion)
     
+    portadora = portadora1+portadora2
     return senal_Tx, Pm, portadora, moduladora
 
-import numpy as np
+
+
 
 def canal_ruidoso(senal_Tx, Pm, SNR):
     '''Un bloque que simula un medio de trans-
@@ -121,11 +143,11 @@ def canal_ruidoso(senal_Tx, Pm, SNR):
 
     return senal_Rx
 
-import numpy as np
+
 
 def demodulador(senal_Rx, portadora, mpp):
     '''Un método que simula un bloque demodulador
-    de señales, bajo un esquema BPSK. El criterio
+    de señales, bajo un esquema QPSK. El criterio
     de demodulación se basa en decodificación por 
     detección de energía.
 
@@ -157,14 +179,13 @@ def demodulador(senal_Rx, portadora, mpp):
         Ep = np.sum(producto) 
 
         # Criterio de decisión por detección de energía
-        if Ep > Es*0.8:
+        if Ep > Es*0:
             bits_Rx[i] = 1
         else:
             bits_Rx[i] = 0
-
     return bits_Rx.astype(int), senal_demodulada
 
-import numpy as np
+
 
 def bits_a_rgb(bits_Rx, dimensiones):
     '''Un blque que decodifica el los bits
@@ -186,9 +207,11 @@ def bits_a_rgb(bits_Rx, dimensiones):
 
     return pixeles.astype(np.uint8)
 
-import numpy as np
-import matplotlib.pyplot as plt
-import time
+
+print("4.1 Modulación QPSK")
+
+#4.1 Modulación QPSK
+
 
 # Parámetros
 fc = 5000  # frecuencia de la portadora
@@ -239,8 +262,6 @@ Fig.tight_layout()
 
 plt.imshow(imagen_Rx)
 
-import matplotlib.pyplot as plt
-
 # Visualizar el cambio entre las señales
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=4, sharex=True, figsize=(14, 7))
 
@@ -263,6 +284,6 @@ ax4.set_xlabel('$t$ / milisegundos')
 fig.tight_layout()
 plt.show()
 
-print("Inician asignaciones del proyecto") 
 
-print("4.1 Modulación QPSK")
+
+
