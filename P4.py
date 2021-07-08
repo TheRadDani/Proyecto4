@@ -286,6 +286,41 @@ plt.show()
 
 print("4.2 Estacionaridad y ergodicidad")
 #4.2 Estacionaridad y ergodicidad
+#creacion de vectyor de tiempo
+t=np.linspace(0,0.001,100)
+amplitudes=[-1,1]
+xt = np.empty((5, len(t)))	  # 5 funciones del tiempo x(t) 
+
+#usar figure para que grafique la senal y el periodo juntos
+plt.figure()
+
+#Matriz de posibles funciones  
+for i in amplitudes:
+    positiva = i * np.cos(2*(np.pi)*fc*t) +  i* np.sin(2*(np.pi)*fc*t) #parte potiva de la senal
+    negativa = -i * np.cos(2*(np.pi)*fc*t) +  i* np.sin(2*(np.pi)*fc*t)  #parte negativa de la senal
+    xt[i,:] = positiva #parte positiva de la senal 
+    xt[i+1,:] = negativa #parte negativa de la senal 
+    #plotaear sernales juntas
+    plt.plot(t, positiva , lw=1)
+    plt.plot(t, negativa , lw=1)       
+
+# Promedio con los datos para el tiempo de simulacion
+P = [np.mean(xt[:,i]) for i in range(len(t))] #para el tiempo t de sim y las funciones xt, deternminar el promedio con mean
+plt.plot(t, P, lw=5,label='Resultado Promedio')
+
+
+E = np.mean(senal_Tx)*t#promedio de la senal, como valor teorico con mean
+plt.plot(t, E, '.', lw=2,label='Resultado teórico')
+
+
+#graficar el proceso aleatorio y el promedio
+plt.title('Proceso aleatorio $X(t)$')
+plt.xlabel('$t$')
+plt.ylabel('$x_i(t)$')
+plt.legend()
+plt.show()
+print("Dado la forma de la señal que presenta \n las mismas amplitudes en el eje y tanto para la fase positiva y negativa, hace que el promedio promedio sea 0 y coincide con el teorico")
+
 
 
 print("4.3 Densidad espectral de potencia")
@@ -307,11 +342,11 @@ tm=tp/mpp
 tsim = np.linspace(0.0, 1.0/(2.0*tm), N//2)
 # Gráfica
 plt.plot(tsim, 2.0/N * pow(np.abs(senal_f[0:N//2]), 2))
-plt.xlim(0, 15000)
+plt.xlim(0, 15000)#graficar hasta 15000 puntos
 plt.grid()
 plt.title('Densidad espectral de potencia')
 plt.xlabel('$t$')
-plt.ylabel('$Señal T_x$')
+plt.ylabel('$Señal \ T_x$')
 plt.show()
 
 
