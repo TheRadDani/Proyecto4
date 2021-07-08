@@ -263,3 +263,6 @@ ax4.set_xlabel('$t$ / milisegundos')
 fig.tight_layout()
 plt.show()
 
+print("Inician asignaciones del proyecto") 
+
+print("4.1 Modulación QPSK")
