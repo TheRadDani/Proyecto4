@@ -10,6 +10,7 @@
 # * Carné: **B82958**
 # * Grupo: **1**
 #
+from scipy import fft
 import matplotlib.pyplot as plt
 import time
 from PIL import Image
@@ -185,8 +186,6 @@ def demodulador(senal_Rx, portadora, mpp):
             bits_Rx[i] = 0
     return bits_Rx.astype(int), senal_demodulada
 
-
-
 def bits_a_rgb(bits_Rx, dimensiones):
     '''Un blque que decodifica el los bits
     recuperados en el proceso de demodulación
@@ -282,6 +281,37 @@ ax4.plot(senal_demodulada[0:600], color='m', lw=2)
 ax4.set_ylabel('$b^{\prime}(t)$')
 ax4.set_xlabel('$t$ / milisegundos')
 fig.tight_layout()
+plt.show()
+
+
+print("4.2 Estacionaridad y ergodicidad")
+#4.2 Estacionaridad y ergodicidad
+
+
+print("4.3 Densidad espectral de potencia")
+#4.3 Densidad espectral de potencia
+# utlizacion de la transformada de Fourier
+senal_f = fft(senal_Tx)
+# cantidad de datos tomados de la senal 
+N = len(senal_Tx)
+# Número de símbolos
+S = N // mpp #valor entero
+
+#utilzar la frecuencia de la onda portadora para el tiempo de simulacion *(periodo)
+
+#calculo del periodo de la onda portadora
+tp=1/fc
+#perido de muestreo para la cantidad de muestras
+tm=tp/mpp
+#tiempo simulacion
+tsim = np.linspace(0.0, 1.0/(2.0*tm), N//2)
+# Gráfica
+plt.plot(tsim, 2.0/N * pow(np.abs(senal_f[0:N//2]), 2))
+plt.xlim(0, 15000)
+plt.grid()
+plt.title('Densidad espectral de potencia')
+plt.xlabel('$t$')
+plt.ylabel('$Señal T_x$')
 plt.show()
 
 
